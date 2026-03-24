@@ -4,6 +4,7 @@ import Register from './pages/Register'
 import Home from './pages/Home'
 import QuestionPage from './pages/QuestionPage'
 import AskQuestion from './pages/AskQuestion'
+import Profile from './pages/Profile'
 
 function App() {
   return (
@@ -15,6 +16,8 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/question/:id" element={<QuestionPage />} />
         <Route path="/ask" element={<AskQuestion />} />
+        <Route path="/questions/:id" element={<QuestionPage />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   )

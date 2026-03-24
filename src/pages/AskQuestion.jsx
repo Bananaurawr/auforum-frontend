@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { createQuestion } from '../api/api'
 
 function AskQuestion() {
   const [title, setTitle] = useState('')
@@ -7,11 +8,15 @@ function AskQuestion() {
   const [tag, setTag] = useState('React')
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Later: call Flask API here
-    alert('Question posted!')
-    navigate('/home')
+    try {
+      await createQuestion({ title, body, tag })
+      navigate('/home')
+    } catch (err) {
+      console.error('Create question error:', err.response?.data)
+      alert(`Error: ${err.response?.data?.message || 'Failed to create question'}`)
+    }
   }
 
   return (
@@ -42,7 +47,7 @@ function AskQuestion() {
               <label className="block text-sm font-medium text-gray-600 mb-1">Title</label>
               <input
                 type="text"
-                placeholder="e.g. How does useEffect work?"
+                placeholder="e.g. Which course should I take for the 5th semester?"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full border p-3 rounded-lg outline-none focus:border-blue-400"
@@ -68,12 +73,11 @@ function AskQuestion() {
                 onChange={(e) => setTag(e.target.value)}
                 className="w-full border p-3 rounded-lg outline-none focus:border-blue-400"
               >
-                <option>React</option>
-                <option>Python</option>
-                <option>Database</option>
-                <option>CSS</option>
-                <option>Security</option>
-                <option>Other</option>
+                <option>Yemek</option>
+                <option>Ders</option>
+                <option>Üniversite</option>
+                <option>Genel</option>
+                <option>Diğer</option>
               </select>
             </div>
 

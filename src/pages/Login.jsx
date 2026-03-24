@@ -1,13 +1,17 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { login } from '../api/api'
 
 function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
+    const res = await login({ email, password })
+    localStorage.setItem("token", res.data.access_token)
+    console.log(res.data)
     navigate('/home')
   }
 
@@ -24,7 +28,7 @@ function Login() {
             onError={(e) => e.target.style.display='none'}
           />
           <h2 className="text-xl font-bold text-gray-700 text-center">Ask. Answer. Learn.</h2>
-          <p className="text-gray-500 text-sm text-center">The student Q&A platform for your university</p>
+          <p className="text-gray-500 text-sm text-center">Created by Students for other Students</p>
         </div>
 
         {/* Right - Form */}
