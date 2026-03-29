@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API = axios.create(
     {
-        baseURL: "http://127.0.0.1:5000/api",
+        baseURL: "https://auforum-backend-54035246760.europe-west1.run.app/api",
     }
 )
 
