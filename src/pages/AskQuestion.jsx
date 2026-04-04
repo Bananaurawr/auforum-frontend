@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createQuestion } from '../api/api'
 
@@ -7,6 +7,11 @@ function AskQuestion() {
   const [body, setBody] = useState('')
   const [tag, setTag] = useState('React')
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) navigate('/login');
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault()
