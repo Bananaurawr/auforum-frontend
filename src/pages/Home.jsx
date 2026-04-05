@@ -2,18 +2,22 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getQuestions } from '../api/api'
 import QuestionCard from '../components/QuestionCard'
+import useSessionTimeout from '../hooks/useSessionTimeout'
+
+const TIMEOUT_DURATION = 15 * 60 * 1000 // 15 minutes
 
 function Home() {
   const [questions, setQuestions] = useState([])
   const [search, setSearch] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const navigate = useNavigate()
+  useSessionTimeout()
 
   useEffect(() => {
-    fetchData()
-    // Check if user is logged in
-    const token = localStorage.getItem('token')
-    setIsLoggedIn(!!token)
+    // Always logout on page reload
+    localStorage.removeItem('token')
+    localStorage.removeItem('lastActivityTime')
+    navigate('/login')
   }, [])
 
   const fetchData = async () => {
@@ -52,6 +56,7 @@ function Home() {
               <button
                 onClick={() => {
                   localStorage.removeItem('token')
+                  localStorage.removeItem('lastActivityTime')
                   setIsLoggedIn(false)
                   navigate('/login')
                 }}

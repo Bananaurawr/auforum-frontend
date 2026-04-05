@@ -11,6 +11,7 @@ function Login() {
     e.preventDefault()
     const res = await login({ email, password })
     localStorage.setItem("token", res.data.access_token)
+    localStorage.setItem("lastActivityTime", Date.now().toString())
     console.log(res.data)
     navigate('/home')
   }
