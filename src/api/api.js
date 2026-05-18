@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API = axios.create(
     {
-        baseURL: "https://auforum-backend-54035246760.europe-west1.run.app/api",
+        baseURL: "http://localhost:5000/api",
     }
 )
 
@@ -19,6 +19,10 @@ API.interceptors.request.use((config) => {
 export const login = (data) => API.post("/auth/login", data);
 export const register = (data) => API.post("/auth/register", data);
 export const getUserProfile = () => API.get("/auth/profile");
+export const updateProfilePicture = (data) =>
+  API.put("/auth/profile/picture", data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 
 // QUESTIONS
 export const getQuestions = () => API.get("/questions/");

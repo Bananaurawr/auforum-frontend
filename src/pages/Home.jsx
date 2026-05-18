@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getQuestions } from '../api/api'
+import { getQuestions, getUserProfile } from '../api/api'
 import QuestionCard from '../components/QuestionCard'
 import useSessionTimeout from '../hooks/useSessionTimeout'
 
@@ -10,19 +10,31 @@ function Home() {
   const [questions, setQuestions] = useState([])
   const [search, setSearch] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [user, setUser] = useState(null)
   const navigate = useNavigate()
   useSessionTimeout()
 
   useEffect(() => {
-    // Always logout on page reload
-    localStorage.removeItem('token')
-    localStorage.removeItem('lastActivityTime')
-    navigate('/login')
+    const hasToken = !!localStorage.getItem('token')
+    setIsLoggedIn(hasToken)
+    fetchData()
+    if (hasToken) {
+      fetchUserProfile()
+    }
   }, [])
 
   const fetchData = async () => {
     const res = await getQuestions()
     setQuestions(res.data)
+  }
+
+  const fetchUserProfile = async () => {
+    try {
+      const res = await getUserProfile()
+      setUser(res.data)
+    } catch (err) {
+      console.error('Failed to fetch user profile:', err.response?.data || err.message)
+    }
   }
 
   const handleDelete = (id) => {
@@ -38,7 +50,7 @@ function Home() {
       {/* Navbar */}
       <nav className="bg-white shadow px-8 py-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-blue-600">AUForum</h1>
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
           {isLoggedIn ? (
             <>
               <button
@@ -49,8 +61,21 @@ function Home() {
               </button>
               <button
                 onClick={() => navigate('/profile')}
-                className="text-gray-500 hover:text-gray-700 text-sm"
+                className="flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm"
               >
+                <span className="h-8 w-8 overflow-hidden rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center">
+                  {user?.profile_picture ? (
+                    <img
+                      src={user.profile_picture}
+                      alt={`${user.name}'s profile`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-xs font-bold text-blue-600">
+                      {user?.name?.charAt(0).toUpperCase() || '?'}
+                    </span>
+                  )}
+                </span>
                 Profile
               </button>
               <button

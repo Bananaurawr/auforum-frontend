@@ -2,6 +2,26 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getQuestionById, createAnswer, deleteAnswer, updateAnswer, deleteQuestion, updateQuestion } from '../api/api'
 
+const UserAvatar = ({ name, src, size = 'md' }) => {
+  const classes = size === 'sm' ? 'h-9 w-9 text-xs' : 'h-11 w-11 text-sm'
+
+  return (
+    <div className={`${classes} shrink-0 overflow-hidden rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center`}>
+      {src ? (
+        <img
+          src={src}
+          alt={`${name || 'User'}'s profile`}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className="font-bold text-blue-600">
+          {name?.charAt(0).toUpperCase() || '?'}
+        </span>
+      )}
+    </div>
+  )
+}
+
 function QuestionPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -26,7 +46,6 @@ function QuestionPage() {
 
     fetchQuestion()
 
-    // Decode JWT to get current user ID
     const token = localStorage.getItem('token')
     if (token) {
       try {
@@ -47,7 +66,7 @@ function QuestionPage() {
 
   const handleSaveQuestionEdit = async () => {
     try {
-      const res = await updateQuestion(id, { title: editingQTitle, body: editingQBody })
+      await updateQuestion(id, { title: editingQTitle, body: editingQBody })
       setQuestion({ ...question, title: editingQTitle, body: editingQBody })
       setEditingQuestion(false)
     } catch (err) {
@@ -61,12 +80,10 @@ function QuestionPage() {
         await deleteQuestion(id)
         navigate('/home')
       } catch (err) {
-        alert(`Error: ${err.response?.data?.message || 'Failed to delete'})`)
+        alert(`Error: ${err.response?.data?.message || 'Failed to delete'}`)
       }
     }
   }
-
-  if (!question) return <div className="p-8">Loading...</div>
 
   const handleAnswer = async (e) => {
     e.preventDefault()
@@ -108,10 +125,10 @@ function QuestionPage() {
     }
   }
 
+  if (!question) return <div className="p-8">Loading...</div>
+
   return (
     <div className="min-h-screen bg-gray-100">
-
-      {/* Navbar */}
       <nav className="bg-white shadow px-8 py-4 flex justify-between items-center">
         <h1
           onClick={() => navigate('/home')}
@@ -123,13 +140,11 @@ function QuestionPage() {
           onClick={() => navigate('/home')}
           className="text-gray-500 hover:text-gray-700 text-sm"
         >
-          ← Back
+          &lt; Back
         </button>
       </nav>
 
       <div className="max-w-3xl mx-auto p-8">
-
-        {/* Question */}
         <div className="bg-white p-6 rounded-xl shadow mb-6">
           {editingQuestion ? (
             <div className="space-y-3">
@@ -175,7 +190,7 @@ function QuestionPage() {
                       onClick={() => setMenuOpenQuestion(!menuOpenQuestion)}
                       className="text-gray-400 hover:text-gray-600 text-lg"
                     >
-                      ⋯
+                      ...
                     </button>
                     {menuOpenQuestion && (
                       <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10">
@@ -196,15 +211,15 @@ function QuestionPage() {
                   </div>
                 )}
               </div>
-              <div className="flex gap-4 text-sm text-gray-400">
+              <div className="flex items-center gap-3 text-sm text-gray-400">
+                <UserAvatar name={question.author} src={question.author_profile_picture} size="sm" />
                 <span>by {question.author}</span>
-                <span>▲ {question.votes} votes</span>
+                <span>{question.votes} votes</span>
               </div>
             </>
           )}
         </div>
 
-        {/* Answers */}
         <h2 className="text-lg font-bold mb-4">{answers.length} Answers</h2>
         <div className="space-y-4 mb-8">
           {answers.map(answer => (
@@ -232,41 +247,42 @@ function QuestionPage() {
                   </div>
                 </div>
               ) : (
-                <>
-                  <div className="flex justify-between items-start">
-                    <p className="text-gray-700 mb-3 flex-1">{answer.body}</p>
-                    {currentUserId === answer.author_id && (
-                      <div className="relative">
-                        <button
-                          onClick={() => setMenuOpen(menuOpen === answer.id ? null : answer.id)}
-                          className="text-gray-400 hover:text-gray-600 text-lg ml-2"
-                        >
-                          ⋯
-                        </button>
-                        {menuOpen === answer.id && (
-                          <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10">
-                            <button
-                              onClick={() => handleEditAnswer(answer)}
-                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteAnswer(answer.id)}
-                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                <div className="flex justify-between items-start gap-4">
+                  <UserAvatar name={answer.author} src={answer.author_profile_picture} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-700 mb-3">{answer.body}</p>
+                    <div className="flex gap-4 text-sm text-gray-400">
+                      <span>by {answer.author}</span>
+                      <span>{answer.votes} votes</span>
+                    </div>
                   </div>
-                  <div className="flex gap-4 text-sm text-gray-400">
-                    <span>by {answer.author}</span>
-                    <span>▲ {answer.votes} votes</span>
-                  </div>
-                </>
+                  {currentUserId === answer.author_id && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setMenuOpen(menuOpen === answer.id ? null : answer.id)}
+                        className="text-gray-400 hover:text-gray-600 text-lg ml-2"
+                      >
+                        ...
+                      </button>
+                      {menuOpen === answer.id && (
+                        <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10">
+                          <button
+                            onClick={() => handleEditAnswer(answer)}
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAnswer(answer.id)}
+                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           ))}
@@ -275,7 +291,6 @@ function QuestionPage() {
           )}
         </div>
 
-        {/* Post Answer */}
         <div className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-lg font-bold mb-4">Your Answer</h2>
           <form onSubmit={handleAnswer} className="space-y-4">
@@ -293,7 +308,6 @@ function QuestionPage() {
             </button>
           </form>
         </div>
-
       </div>
     </div>
   )
