@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getQuestions, getUserProfile } from '../api/api'
+import { getQuestions, getUserProfile, voteQuestion } from '../api/api'
 import QuestionCard from '../components/QuestionCard'
 import useSessionTimeout from '../hooks/useSessionTimeout'
 
@@ -39,6 +39,19 @@ function Home() {
 
   const handleDelete = (id) => {
     setQuestions(prev => prev.filter(q => q.id !== id))
+  }
+
+  const handleVote = async (id) => {
+    try {
+      const res = await voteQuestion(id)
+      setQuestions(prev => prev.map(q =>
+        q.id === id
+          ? { ...q, votes: res.data.votes, user_voted: !q.user_voted }
+          : q
+      ))
+    } catch (err) {
+      alert(`Error: ${err.response?.data?.message || 'Failed to vote'}`)
+    }
   }
 
   const filtered = questions.filter(q =>
@@ -130,6 +143,7 @@ function Home() {
               key={q.id}
               question={q}
               onDelete={handleDelete}
+              onVote={handleVote}
             />
           ))}
 

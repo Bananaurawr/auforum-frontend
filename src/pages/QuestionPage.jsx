@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getQuestionById, createAnswer, deleteAnswer, updateAnswer, deleteQuestion, updateQuestion } from '../api/api'
+import { getQuestionById, createAnswer, deleteAnswer, updateAnswer, deleteQuestion, updateQuestion, voteQuestion, voteAnswer } from '../api/api'
 
 const UserAvatar = ({ name, src, size = 'md' }) => {
   const classes = size === 'sm' ? 'h-9 w-9 text-xs' : 'h-11 w-11 text-sm'
@@ -125,6 +125,32 @@ function QuestionPage() {
     }
   }
 
+  const handleQuestionVote = async () => {
+    try {
+      const res = await voteQuestion(question.id)
+      setQuestion({
+        ...question,
+        votes: res.data.votes,
+        user_voted: !question.user_voted,
+      })
+    } catch (err) {
+      alert(`Error: ${err.response?.data?.message || 'Failed to vote'}`)
+    }
+  }
+
+  const handleAnswerVote = async (answerId) => {
+    try {
+      const res = await voteAnswer(answerId)
+      setAnswers(answers.map(answer =>
+        answer.id === answerId
+          ? { ...answer, votes: res.data.votes, user_voted: !answer.user_voted }
+          : answer
+      ))
+    } catch (err) {
+      alert(`Error: ${err.response?.data?.message || 'Failed to vote'}`)
+    }
+  }
+
   if (!question) return <div className="p-8">Loading...</div>
 
   return (
@@ -214,6 +240,16 @@ function QuestionPage() {
               <div className="flex items-center gap-3 text-sm text-gray-400">
                 <UserAvatar name={question.author} src={question.author_profile_picture} size="sm" />
                 <span>by {question.author}</span>
+                <button
+                  onClick={handleQuestionVote}
+                  className={`px-2 py-1 rounded text-xs font-medium ${
+                    question.user_voted
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                  }`}
+                >
+                  Upvote
+                </button>
                 <span>{question.votes} votes</span>
               </div>
             </>
@@ -251,8 +287,18 @@ function QuestionPage() {
                   <UserAvatar name={answer.author} src={answer.author_profile_picture} />
                   <div className="flex-1 min-w-0">
                     <p className="text-gray-700 mb-3">{answer.body}</p>
-                    <div className="flex gap-4 text-sm text-gray-400">
+                    <div className="flex gap-4 text-sm text-gray-400 items-center">
                       <span>by {answer.author}</span>
+                      <button
+                        onClick={() => handleAnswerVote(answer.id)}
+                        className={`px-2 py-1 rounded text-xs font-medium ${
+                          answer.user_voted
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                        }`}
+                      >
+                        Upvote
+                      </button>
                       <span>{answer.votes} votes</span>
                     </div>
                   </div>

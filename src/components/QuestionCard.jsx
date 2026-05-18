@@ -1,8 +1,13 @@
 import { useNavigate } from "react-router-dom";
 
-function QuestionCard({ question, onDelete }) {
+function QuestionCard({ question, onDelete, onVote }) {
   const navigate = useNavigate();
   const authorInitial = question.author?.charAt(0).toUpperCase() || "?";
+
+  const handleVote = (event) => {
+    event.stopPropagation();
+    onVote?.(question.id);
+  };
 
   return (
     <div
@@ -31,7 +36,17 @@ function QuestionCard({ question, onDelete }) {
           </div>
           <h3 className="text-lg font-semibold text-gray-800">{question.title}</h3>
           <p className="text-gray-500 text-sm mt-1">{question.body}</p>
-          <div className="flex gap-4 text-xs text-gray-400 mt-3">
+          <div className="flex gap-4 text-xs text-gray-400 mt-3 items-center">
+            <button
+              onClick={handleVote}
+              className={`px-2 py-1 rounded text-xs font-medium ${
+                question.user_voted
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-500 hover:bg-blue-50 hover:text-blue-600"
+              }`}
+            >
+              Upvote
+            </button>
             <span>{question.votes} votes</span>
             <span>{question.answers} answers</span>
           </div>

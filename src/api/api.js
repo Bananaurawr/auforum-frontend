@@ -31,9 +31,11 @@ export const createQuestion = (data) => API.post("/questions/", data);
 export const deleteQuestion = (id) =>
   API.delete(`/questions/${id}`);
 export const updateQuestion = (id, data) => API.put(`/questions/${id}`, data);
+export const voteQuestion = (id) => API.post(`/questions/${id}/vote`);
 
 // ANSWERS
 export const createAnswer = (questionId, data) => API.post(`/questions/${questionId}/answers`, data);
 export const getAnswers = (questionId) => API.get(`/questions/${questionId}/answers`);
 export const deleteAnswer = (answerId) => API.delete(`/questions/answers/${answerId}`);
 export const updateAnswer = (answerId, data) => API.put(`/questions/answers/${answerId}`, data);
+export const voteAnswer = (answerId) => API.post(`/questions/answers/${answerId}/vote`);
